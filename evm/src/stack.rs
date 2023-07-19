@@ -24,9 +24,11 @@ impl Stack {
         self.length += 1;
     }
 
-    pub fn pop(&mut self) {
+    pub fn pop(&mut self) -> u64 {
         assert!(self.length > 0);
+        let top = self.values[self.length - 1];
         self.length -= 1;
+        top
     }
 
     pub fn swap(&mut self, n: usize) {

@@ -1,5 +1,7 @@
 pub enum Instruction {
     Stop,
+    Mload,
+    Mstore,
     Pop,
     Push0,
     Push(u8),
@@ -10,6 +12,8 @@ pub enum Instruction {
 pub fn parse(code: &mut impl Iterator<Item = u8>) -> Option<Instruction> {
     Some(match code.next()? {
         0x00 => Instruction::Stop,
+        0x40 => Instruction::Mload,
+        0x41 => Instruction::Mstore,
         0x50 => Instruction::Pop,
         0x5f => Instruction::Push0,
         0x60 => Instruction::Push(code.next()?),
