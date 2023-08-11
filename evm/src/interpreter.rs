@@ -1,10 +1,12 @@
 use crate::instruction::*;
 use crate::memory::*;
 use crate::stack::*;
+use crate::storage::*;
 
 #[derive(Clone, Debug)]
 pub struct Interpreter<'a> {
     pub mem: Memory,
+    pub storage: Storage,
     pub stack: Stack,
     pub code: &'a [u8],
     pub pc: usize,
@@ -22,6 +24,7 @@ impl<'a> Interpreter<'a> {
     pub fn new(code: &'a [u8]) -> Self {
         Self {
             mem: Memory::default(),
+            storage: Storage::default(),
             stack: Stack::default(),
             code,
             pc: 0,
@@ -35,6 +38,8 @@ impl<'a> Interpreter<'a> {
                 Instruction::Stop => break,
                 Instruction::Mload => self.mload(),
                 Instruction::Mstore => self.mstore(),
+                Instruction::Sload => self.sload(),
+                Instruction::Sstore => self.sstore(),
                 Instruction::Pop => _ = self.stack.pop(),
                 Instruction::Push0 => self.stack.push0(),
                 Instruction::Push(byte) => self.stack.push(byte as u64),
@@ -50,8 +55,19 @@ impl<'a> Interpreter<'a> {
     }
 
     fn mstore(&mut self) {
-        let val = self.stack.pop();
         let idx = self.stack.pop();
+        let val = self.stack.pop();
         self.mem.store(idx as usize, val);
+    }
+
+    fn sload(&mut self) {
+        let key = self.stack.pop();
+        self.stack.push(self.storage.load(key));
+    }
+
+    fn sstore(&mut self) {
+        let key = self.stack.pop();
+        let val = self.stack.pop();
+        self.storage.store(key, val);
     }
 }
